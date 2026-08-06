@@ -1,0 +1,109 @@
+<?php
+
+class TicTacToe {
+    private $board;
+    private $currentPlayer;
+
+    public function __construct() {
+        $this->board = array(
+            array('-', '-', '-'),
+            array('-', '-', '-'),
+            array('-', '-', '-')
+        );
+        $this->currentPlayer = 'X';
+    }
+
+    public function printBoard() {
+        foreach ($this->board as $row) {
+            echo implode(' | ', $row) . PHP_EOL;
+            echo "---------\n";
+        }
+    }
+
+    public function makeMove($row, $col) {
+        if ($this->isValidMove($row, $col)) {
+            $this->board[$row][$col] = $this->currentPlayer;
+            $this->currentPlayer = ($this->currentPlayer == 'X') ? 'O' : 'X';
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function isValidMove($row, $col) {
+        if ($row < 0 || $row > 2 || $col < 0 || $col > 2 || $this->board[$row][$col] != '-') {
+            return false;
+        }
+        return true;
+    }
+
+    public function checkWinner() {
+        // Check rows
+        for ($i = 0; $i < 3; $i++) {
+            if ($this->board[$i][0] == $this->board[$i][1] && $this->board[$i][1] == $this->board[$i][2] && $this->board[$i][0] != '-') {
+                return $this->board[$i][0];
+            }
+        }
+
+        // Check columns
+        for ($i = 0; $i < 3; $i++) {
+            if ($this->board[0][$i] == $this->board[1][$i] && $this->board[1][$i] == $this->board[2][$i] && $this->board[0][$i] != '-') {
+                return $this->board[0][$i];
+            }
+        }
+
+        // Check diagonals
+        if (($this->board[0][0] == $this->board[1][1] && $this->board[1][1] == $this->board[2][2] && $this->board[0][0] != '-') ||
+            ($this->board[0][2] == $this->board[1][1] && $this->board[1][1] == $this->board[2][0] && $this->board[0][2] != '-')) {
+            return $this->board[1][1];
+        }
+
+        // Check for draw
+        $draw = true;
+        foreach ($this->board as $row) {
+            if (in_array('-', $row)) {
+                $draw = false;
+                break;
+            }
+        }
+        if ($draw) {
+            return 'draw';
+        }
+
+        return null;
+    }
+
+    public function getCurrentPlayer() {
+        return $this->currentPlayer;
+    }
+}
+
+// Example usage:
+$game = new TicTacToe();
+
+echo "Welcome to Tic Tac Toe!\n";
+echo "To make a move, enter row and column (0-2) separated by space.\n";
+
+while (true) {
+    $game->printBoard();
+    echo "Player " . $game->getCurrentPlayer() . "'s turn.\n";
+    echo "Enter row and column: ";
+    $input = readline();
+    $coordinates = explode(" ", $input);
+    $row = (int)$coordinates[0];
+    $col = (int)$coordinates[1];
+
+    if ($game->makeMove($row, $col)) {
+        $winner = $game->checkWinner();
+        if ($winner) {
+            if ($winner == 'draw') {
+                echo "It's a draw!\n";
+            } else {
+                echo "Player $winner wins!\n";
+            }
+            break;
+        }
+    } else {
+        echo "Invalid move. Try again.\n";
+    }
+}
